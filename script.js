@@ -1,0 +1,24 @@
+const CAMERAS=[
+{id:'c1',name:'The Digital Y2K C01 Pocket',price:3490000,img:'https://images.pexels.com/photos/35641452/pexels-photo-35641452.jpeg?auto=compress&cs=tinysrgb&w=1200',desc:'Nhỏ gọn, dễ mang theo mỗi ngày.',tag:'EASY START'},
+{id:'c2',name:'The Digital Y2K C02 Urban',price:3790000,img:'https://images.pexels.com/photos/29206572/pexels-photo-29206572.jpeg?auto=compress&cs=tinysrgb&w=1200',desc:'Phong cách đường phố, hợp đi chơi và du lịch.',tag:'TRAVEL'},
+{id:'c3',name:'The Digital Y2K C03 Flash',price:3990000,img:'https://images.pexels.com/photos/37546296/pexels-photo-37546296.jpeg?auto=compress&cs=tinysrgb&w=1200',desc:'Thiết kế hiện đại cho những khoảnh khắc hằng ngày.',tag:'EVERYDAY'},
+{id:'c4',name:'The Digital Y2K C04 Metal',price:4290000,img:'https://images.pexels.com/photos/18068741/pexels-photo-18068741.jpeg?auto=compress&cs=tinysrgb&w=1200',desc:'Ngoại hình cao cấp, nổi bật trong bộ sưu tập.',tag:'PREMIUM'},
+{id:'c5',name:'The Digital Y2K C05 Desk',price:4590000,img:'https://images.pexels.com/photos/20494414/pexels-photo-20494414.jpeg?auto=compress&cs=tinysrgb&w=1200',desc:'Tối giản, hợp creator và góc làm việc cá nhân.',tag:'CREATOR'},
+{id:'c6',name:'The Digital Y2K C06 Retro',price:4990000,img:'https://images.pexels.com/photos/40044414/pexels-photo-40044414.jpeg?auto=compress&cs=tinysrgb&w=1200',desc:'Chất retro cho những bộ ảnh có cá tính riêng.',tag:'Y2K PICK'}];
+const ACCESSORIES=[
+{id:'a1',name:'Camera Bag',price:450000,img:'https://images.pexels.com/photos/30562753/pexels-photo-30562753.jpeg?auto=compress&cs=tinysrgb&w=1000'},
+{id:'a2',name:'Mini Tripod',price:290000,img:'https://images.pexels.com/photos/9448165/pexels-photo-9448165.jpeg?auto=compress&cs=tinysrgb&w=1000'},
+{id:'a3',name:'Memory Card 128GB',price:390000,img:'https://images.pexels.com/photos/13127688/pexels-photo-13127688.jpeg?auto=compress&cs=tinysrgb&w=1000'},
+{id:'a4',name:'Camera Gear Kit',price:590000,img:'https://images.pexels.com/photos/4983810/pexels-photo-4983810.jpeg?auto=compress&cs=tinysrgb&w=1000'},
+{id:'a5',name:'Lens & Care Set',price:350000,img:'https://images.pexels.com/photos/788817/pexels-photo-788817.jpeg?auto=compress&cs=tinysrgb&w=1000'}];
+const ALL=[...CAMERAS,...ACCESSORIES];let cart=JSON.parse(localStorage.getItem('the-digital-y2k-cart')||'[]');
+const money=n=>new Intl.NumberFormat('vi-VN').format(n)+'₫';
+function renderProducts(){cameraGrid.innerHTML=CAMERAS.map(p=>card(p)).join('');accessoryGrid.innerHTML=ACCESSORIES.map(p=>card(p,true)).join('')}
+function card(p,acc=false){return `<article class="card"><div class="card-img"><img src="${p.img}" alt="${p.name}" loading="lazy"><span class="image-label">${p.tag||'GEAR'}</span></div><div class="card-info"><p class="product-code">${p.id.toUpperCase()} / THE DIGITAL Y2K</p><h3>${p.name}</h3>${!acc?`<p class="desc">${p.desc}</p>`:''}<div class="price">${money(p.price)}</div><div class="card-actions"><button class="add" onclick="add('${p.id}')">Thêm vào giỏ</button></div></div></article>`}
+function add(id){cart.push(id);save();openCart()};function save(){localStorage.setItem('the-digital-y2k-cart',JSON.stringify(cart));renderCart()}
+function renderCart(){cartCount.textContent=cart.length;const items=cart.map(id=>ALL.find(p=>p.id===id)).filter(Boolean);if(!items.length){cartItems.innerHTML='<p style="padding:30px;color:#777">Giỏ hàng đang trống.</p>'}else{cartItems.innerHTML=items.map((p,i)=>`<div class="cart-row"><img src="${p.img}" alt=""><div><h4>${p.name}</h4><small>${money(p.price)}</small></div><button class="remove" onclick="removeItem(${i})">Xóa</button></div>`).join('')}cartTotal.textContent=money(items.reduce((s,p)=>s+p.price,0))}
+function removeItem(i){cart.splice(i,1);save()};function openCart(){drawer.classList.add('open');overlay.classList.add('show')};function closeCart(){drawer.classList.remove('open');overlay.classList.remove('show')};
+cartBtn.onclick=openCart;document.getElementById('closeCart').onclick=closeCart;overlay.onclick=closeCart;renderProducts();renderCart();
+checkoutBtn.onclick=()=>{if(!cart.length)return alert('Giỏ hàng đang trống nha!');checkoutModal.classList.add('show');closeCart()};closeModal.onclick=()=>checkoutModal.classList.remove('show');
+checkoutForm.onsubmit=e=>{e.preventDefault();if(payment.value==='qr'){const total=cart.map(id=>ALL.find(p=>p.id===id)?.price||0).reduce((a,b)=>a+b,0);qrImage.src=`https://img.vietqr.io/image/MB-0123456789-compact2.png?amount=${total}&addInfo=THE%20DIGITAL%20Y2K%20${Date.now()}&accountName=THE%20DIGITAL%20Y2K`;qrBox.hidden=false}else{alert('Đã tạo đơn COD mô phỏng!');cart=[];save();checkoutModal.classList.remove('show')}};
+paidBtn.onclick=()=>{alert('Đã ghi nhận thanh toán mô phỏng. Cảm ơn bạn!');cart=[];save();checkoutModal.classList.remove('show');qrBox.hidden=true;checkoutForm.reset()};
